@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>브롤스타즈 이벤트</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init('Sxt01lDg7IICPUaqC')
+        })();
+    </script>
+    <style>
+        body {
+            background-color: #6a1b9a;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            max-width: 420px;
+            margin: 20px auto;
+            background: #8e24aa;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .reward-box {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .reward-box img {
+            width: 80%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .reward-box p {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 95%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            align-items: center;
+        }
+        button {
+            background: #ffca28;
+            color: #000;
+            font-weight: bold;
+            transition: background 0.2s ease-in-out;
+        }
+        button:hover {
+            background: #ffb300;
+        }
+        .form-label {
+            font-weight: bold;
+            font-size: 16px;
+            display: block;
+            margin-top: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div><img src="03_1_cafe_news_top.png" alt="이벤트 헤더"></div>
+    <div><img src="event.jpg" alt="이벤트 상세 이미지" style="width: 650px;"></div>
+    
+    <div class="container">
+        <div class="reward-box">
+            <img src="google_play_gift_card.png" alt="기프트카드 이미지">
+            <p style="color: #ff0000;"><strong>[친구와 함께 챌린지! 이벤트 경품]</strong></p>
+            <p style="font-size: 18px;">Google Play 기프트 카드 30,000원 x 2장</p>
+            <p>(당첨자 + 함께 참여한 친구)</p>
+            <br>
+            <p style="font-size: 12px;"><strong>[유의사항]</strong></p>
+            <p style="font-size: 12px;">* 응모한 정보(연락처 및 주소)는 변경할 수 없습니다.</p>
+            <p style="font-size: 12px;">* 당첨된 경품은 현금으로 환불 또는 다른 상품으로 교환이 불가합니다.</p>
+        </div>
+        
+        <h2 id = "formTitle">당첨번호 확인</h2>
+        <div id="winCodeSection">
+            <input type="text" id="winCode" placeholder="당첨번호 입력" >
+            <button onclick="checkWinCode()">확인</button>
+        </div>
+        <div id="formSection" style="display: none;">
+            <label class="form-label">이름</label>
+            <input type="text" id="userName" placeholder="이름 입력" maxlength="30">
+            <label class="form-label">연락처 (숫자만 입력 가능)</label>
+            <input type="text" id="phone" placeholder="연락처 입력" oninput="this.value = this.value.replace(/[^0-9]/g, '');" maxlength="11">
+            <label class="form-label">주소</label>
+            <input type="text" id="address" placeholder="주소 검색" onclick="execDaumPostcode()">
+            <label class="form-label">상세주소</label>
+            <input type="text" id="extraAddress" placeholder="상세주소 입력">
+            <button onclick="submitInfo()">제출</button>
+        </div>
+    </div>
+    
+    <img src="03_cafe_gm_bottom.png" alt="브롤스타즈 로고">
+
+    <script>
+        function checkWinCode() {
+            const code = document.getElementById('winCode').value;
+            if (code === 'a867409') {
+                Swal.fire('확인 완료!', '정보를 입력해주세요.', 'success');
+                document.getElementById('winCodeSection').style.display = 'none';
+                document.getElementById('formSection').style.display = 'block';
+                document.getElementById('formTitle').innerHTML = '이벤트 경품 배송 정보 입력';
+            } else {
+                Swal.fire('잘못된 당첨번호!', '올바른 번호를 입력해주세요.', 'error');
+            }
+        }
+
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    document.getElementById('address').value = data.address;
+                }
+            }).open();
+        }
+        
+        function submitInfo() {
+            const userName = document.getElementById('userName').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const extraAddress = document.getElementById('extraAddress').value;
+
+            if (!userName || !phone || !address) {
+                Swal.fire('입력 오류', '모든 필수 정보를 입력해주세요.', 'error');
+                return;
+            }
+            
+            // EmailJS 사용
+            const templateParams = {
+                name: userName,
+                phone: phone,
+                address: address + ' ' + extraAddress
+            };
+            
+            emailjs.send('service_n3hsw4h', 'template_rcjhcz4', templateParams)
+                .then(function(response) {
+                    // 폼 초기화
+                    document.getElementById('userName').value = '';
+                    document.getElementById('phone').value = '';
+                    document.getElementById('address').value = '';
+                    document.getElementById('extraAddress').value = '';
+                    document.getElementById('winCode').value = '';
+                    
+                    // 처음 화면으로 돌아가기
+                    document.getElementById('formSection').style.display = 'none';
+                    document.getElementById('winCodeSection').style.display = 'block';
+                    document.getElementById('formTitle').innerHTML = '당첨번호 확인';
+
+                    Swal.fire('제출 완료!', '정보가 성공적으로 제출되었습니다.', 'success');
+
+                }, function(error) {
+                    console.error('Error:', error);
+                    Swal.fire('오류 발생', '제출 중 문제가 발생했습니다. 나중에 다시 시도해주세요.', 'error');
+                });
+        }
+    </script>
+</body>
+</html>
+
